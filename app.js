@@ -79,7 +79,7 @@ function renderLogin() {
                     <h1>Welcome to SubSentry</h1>
                     <p>Take control of your subscriptions and never miss a payment again</p>
                     
-                    <button class="btn-google" onclick="navigateTo('dashboard')">
+                    <button class="btn-google" onclick="handleGoogleSignIn()">
                         <svg width="20" height="20" viewBox="0 0 20 20">
                             <path fill="#4285F4" d="M19.6 10.23c0-.82-.1-1.42-.25-2.05H10v3.72h5.5c-.15.96-.74 2.31-2.04 3.22v2.45h3.16c1.89-1.73 2.98-4.3 2.98-7.34z"/>
                             <path fill="#34A853" d="M13.46 15.13c-.83.59-1.96 1-3.46 1-2.64 0-4.88-1.74-5.68-4.15H1.07v2.52C2.72 17.75 6.09 20 10 20c2.7 0 4.96-.89 6.62-2.42l-3.16-2.45z"/>
