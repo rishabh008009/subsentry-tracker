@@ -1,6 +1,18 @@
 // SubSentry - Subscription Tracker Application
 // Navigation and State Management
 
+// Import Supabase client (optional - falls back to demo mode if not configured)
+let supabase, auth, db;
+try {
+    const supabaseModule = await import('./lib/supabase-client.js');
+    supabase = supabaseModule.supabase;
+    auth = supabaseModule.auth;
+    db = supabaseModule.db;
+    console.log('✅ Supabase connected');
+} catch (error) {
+    console.log('⚠️ Running in demo mode (Supabase not configured)');
+}
+
 const app = {
     currentScreen: 'login',
     subscriptions: [
@@ -19,8 +31,9 @@ const app = {
 };
 
 // Initialize app
-function init() {
-    renderScreen(app.currentScreen);
+async function init() {
+    console.log('🚀 SubSentry initializing...');
+    await checkAuth();
 }
 
 // Navigation function
@@ -62,7 +75,7 @@ function renderLogin() {
                     <h1>Welcome to SubSentry</h1>
                     <p>Take control of your subscriptions and never miss a payment again</p>
                     
-                    <button class="btn-google" onclick="navigateTo('dashboard')">
+                    <button class="btn-google" onclick="handleGoogleSignIn()">
                         <svg width="20" height="20" viewBox="0 0 20 20">
                             <path fill="#4285F4" d="M19.6 10.23c0-.82-.1-1.42-.25-2.05H10v3.72h5.5c-.15.96-.74 2.31-2.04 3.22v2.45h3.16c1.89-1.73 2.98-4.3 2.98-7.34z"/>
                             <path fill="#34A853" d="M13.46 15.13c-.83.59-1.96 1-3.46 1-2.64 0-4.88-1.74-5.68-4.15H1.07v2.52C2.72 17.75 6.09 20 10 20c2.7 0 4.96-.89 6.62-2.42l-3.16-2.45z"/>
@@ -614,6 +627,45 @@ function renderSidebar(activeItem) {
             </nav>
         </div>
     `;
+}
+
+// Authentication Handlers
+async function handleGoogleSignIn() {
+    if (auth) {
+        // Supabase is configured - use real authentication
+        console.log('🔐 Signing in with Google...');
+        const { data, error } = await auth.signInWithGoogle();
+        
+        if (error) {
+            console.error('Authentication error:', error);
+            alert('Failed to sign in with Google. Please check your Supabase configuration.');
+        } else {
+            console.log('✅ Redirecting to Google...');
+            // Google will redirect back to your app
+        }
+    } else {
+        // Demo mode - go straight to dashboard
+        console.log('⚠️ Demo mode - skipping authentication');
+        navigateTo('dashboard');
+    }
+}
+
+// Check for authentication on page load
+async function checkAuth() {
+    if (auth) {
+        const { session } = await auth.getSession();
+        if (session) {
+            console.log('✅ User is authenticated:', session.user.email);
+            app.currentUser = session.user;
+            navigateTo('dashboard');
+        } else {
+            console.log('ℹ️ No active session');
+            navigateTo('login');
+        }
+    } else {
+        // Demo mode
+        navigateTo('login');
+    }
 }
 
 // Event Handlers
