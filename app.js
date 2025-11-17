@@ -657,17 +657,30 @@ async function handleGoogleSignIn() {
 // Check for authentication on page load
 async function checkAuth() {
     if (auth) {
+        console.log('🔍 Checking authentication...');
+        console.log('Current URL:', window.location.href);
+        
         // Check if we're returning from OAuth (has code or access_token in URL)
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const searchParams = new URLSearchParams(window.location.search);
         
-        if (hashParams.get('access_token') || searchParams.get('code')) {
+        const hasAccessToken = hashParams.get('access_token');
+        const hasCode = searchParams.get('code');
+        
+        console.log('Has access_token in hash:', !!hasAccessToken);
+        console.log('Has code in search:', !!hasCode);
+        
+        if (hasAccessToken || hasCode) {
             console.log('🔄 Processing OAuth callback...');
-            // Wait a bit for Supabase to process the session
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Wait for Supabase to process the session
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
         
-        const { session } = await auth.getSession();
+        const { session, error } = await auth.getSession();
+        
+        console.log('Session:', session);
+        console.log('Error:', error);
+        
         if (session) {
             console.log('✅ User is authenticated:', session.user.email);
             app.currentUser = session.user;
@@ -682,6 +695,7 @@ async function checkAuth() {
         }
     } else {
         // Demo mode
+        console.log('⚠️ Auth not available, using demo mode');
         navigateTo('login');
     }
 }
