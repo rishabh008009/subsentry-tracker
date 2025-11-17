@@ -652,20 +652,35 @@ function renderSidebar(activeItem) {
 
 // Authentication Handlers
 async function handleSignOut() {
-    if (auth) {
-        console.log('🚪 Signing out...');
-        const { error } = await auth.signOut();
-        if (error) {
-            console.error('Sign out error:', error);
-            alert('Failed to sign out');
+    try {
+        if (auth) {
+            console.log('🚪 Signing out...');
+            const { error } = await auth.signOut();
+            if (error) {
+                console.error('Sign out error:', error);
+                // Try to clear local session anyway
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.reload();
+            } else {
+                console.log('✅ Signed out successfully');
+                app.currentUser = null;
+                // Clear any cached data
+                localStorage.clear();
+                sessionStorage.clear();
+                // Reload to login page
+                window.location.href = window.location.pathname;
+            }
         } else {
-            console.log('✅ Signed out successfully');
-            app.currentUser = null;
+            // Demo mode
             navigateTo('login');
         }
-    } else {
-        // Demo mode
-        navigateTo('login');
+    } catch (error) {
+        console.error('Sign out exception:', error);
+        // Force clear and reload
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.reload();
     }
 }
 
